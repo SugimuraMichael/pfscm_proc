@@ -1,5 +1,5 @@
 
-from mrkpicheck.data_cleaning import replace_SCMS
+from mrkpicheck_data_cleaning import replace_SCMS
 import pandas as pd
 
 li_name = 'PPM Pad LI June 26 2017'

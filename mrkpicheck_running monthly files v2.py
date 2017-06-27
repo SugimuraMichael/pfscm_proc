@@ -10,16 +10,18 @@ you need to change settings, set the data files to point it to, and the save loc
 '''
 #def run_kpis(matrix_file, dat, reporting_yr_month,save_loc,save_name,save_yes_no= 'yes'):
 
+
 import pandas as pd
 import numpy as np
-from mrkpicheck.kpis import run_kpis
-from mrkpicheck.checkingduplicates_v2 import check_incomplete_duplicates
-from mrkpicheck.data_set_checker_v3 import compare_padcors
-from mrkpicheck.checking_blank_fields import check_for_blanks
+from mrkpicheck_kpis import run_kpis
+from mrkpicheck_checkingduplicates_v2 import check_incomplete_duplicates
+from mrkpicheck_data_set_checker_v3 import compare_padcors
+from mrkpicheck_checking_blank_fields import check_for_blanks
 #from mrkpicheck.Checking_blanks_v2 import pe_po
-from mrkpicheck.lsu_vipd_request import vipd_checks_vs_po_create
-from mrkpicheck.data_cleaning import replace_SCMS
-import mrkpicheck.full_file_kpis as full_file
+from mrkpicheck_lsu_vipd_request import vipd_checks_vs_po_create
+from mrkpicheck_data_cleaning import replace_SCMS
+import mrkpicheck_full_file_kpis as full_file
+
 
 
 

@@ -2,6 +2,12 @@
 
 
 '''
+8/1/2017
+Added contingencies to deal with non ppm reporting, additional option called TGF that defaults to yes. this will subset the dataset
+setting it to anything besides yes will cause it to be run on the whole dataset. runtime of around 400 seconds vs the 80 with 
+only tgf. Also i added additional code to handle blank lines so the functions should always run, but will show 0 or nan values where
+there are 0 observations
+
 6/23/2017
 Updated to include additonal functiosn for KPI calculation. these run in a much shorter time frame than previous
 version. 15 sec down to under .1. need to continue field testing.

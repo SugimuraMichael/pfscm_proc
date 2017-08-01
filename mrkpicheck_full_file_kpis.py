@@ -55,7 +55,7 @@ main function, used to generate KPI values in a dataset which can be used by the
 calculate KPI values
 '''
 
-def run_kpis(matrix_file, dat, reporting_yr_month,save_loc,save_name,save_yes_no= 'yes'):
+def run_kpis(matrix_file, dat, reporting_yr_month,save_loc,save_name,save_yes_no= 'yes',TGF = 'Yes'):
 
     #use these for calculations, so just make sure there are no NAs,
     # probably suboptimal, but it goes fast so I guess it is fine for now
@@ -114,7 +114,10 @@ def run_kpis(matrix_file, dat, reporting_yr_month,save_loc,save_name,save_yes_no
     #new matrix for q1 and q2 of 2017
     #matrix_loc = 'C:/Users/585000/Desktop/PCFSM/FLT matrix calculations/quarter_matricies/matrix_tests/matrix_test_5.csv'
     #adjusted 6_12_17
-    matrix_loc = 'C:/Users/585000/Desktop/PCFSM/FLT matrix calculations/quarter_matricies/matrix_tests/matrix_test_7.csv'
+    #matrix_loc = 'C:/Users/585000/Desktop/PCFSM/FLT matrix calculations/quarter_matricies/matrix_tests/matrix_test_7.csv'
+
+    #adjusted 7_27
+    matrix_loc = 'C:/Users/585000/Desktop/PCFSM/FLT matrix calculations/quarter_matricies/matrix_tests/matrix_test_7_27_07.csv'
 
     matrix = pd.read_csv(matrix_loc)
     ### CAN ADJUST THE BRIDGE TO INCLUDE MULTIPLE
@@ -178,20 +181,29 @@ def run_kpis(matrix_file, dat, reporting_yr_month,save_loc,save_name,save_yes_no
     '''
     # part 1: Remove rows as required
     #remove the Ta0 items
-    dat['Ta0'] = 0
-    for index, row in dat.iterrows():
-        a = str(row['Project Code'])
-        a = a[-3:]
-        if a == 'TA0':
-            dat.loc[index, 'Ta0'] = 1
 
-    dat = dat[dat['Ta0'] == 0]
+    if TGF == 'Yes':
+        dat['Ta0'] = 0
+        for index, row in dat.iterrows():
+            a = str(row['Project Code'])
+            a = a[-3:]
+            if a == 'TA0':
+                dat.loc[index, 'Ta0'] = 1
 
-    ## NEED TO FIX
-    dat = dat[dat['Client Type'] != 'NGF']
+        dat = dat[dat['Ta0'] == 0]
 
-    dat = dat[dat['Managed By - Project']!= 'SCMS']
-    dat = dat[dat['Order Short Closed'] != "Yes"]
+        ## NEED TO FIX
+        dat = dat[dat['Client Type'] != 'NGF']
+
+        dat = dat[dat['Managed By - Project']!= 'SCMS']
+        dat = dat[dat['Order Short Closed'] != "Yes"]
+
+    #########################################################################
+    #need to further vett
+    #if TGF == 'No':
+    #    dat = dat[dat['Managed By'] != 'L1']
+    #    dat = dat[dat['Managed By'] != 'VPP']
+    #########################################################################
 
     ### merge in costs#####
 
@@ -337,7 +349,7 @@ def run_kpis(matrix_file, dat, reporting_yr_month,save_loc,save_name,save_yes_no
         d1 = str(row['Shipment Delivered Date'])
 
         #for the ones which are ok, unflag them. Basically start with all that fit in KPI and remove those that are ok
-        #calculate KPI 2, and mark those that fall as less than 3 days since those are within bounds
+            #calculate KPI 2, and mark those that fall as less than 3 days since those are within bounds
         if pe_actionable != '' and pe_sent != '':
             pe_turnaround_time = days_between(pe_actionable, pe_sent)
             pe_to_list.append(pe_turnaround_time)
@@ -379,12 +391,12 @@ def run_kpis(matrix_file, dat, reporting_yr_month,save_loc,save_name,save_yes_no
                 if flt < 0:
                     dat.loc[index, 'flt_vs_plt'] = 'flt less than 0, check vendor inco and D1 dates'
                     dat.loc[index, 'flt_-_plt'] = ''
+                    dat.loc[index, 'Actual Freight Leadtime'] = flt
+
                 if flt >= 0:
                     dat.loc[index, 'flt_vs_plt'] = flt_vs_plt
                     dat.loc[index, 'flt_-_plt'] = flt_minus_plt
-
-
-
+                    dat.loc[index, 'Actual Freight Leadtime'] = flt
 
     #this one may have to be taken out. effort to reduce number of rows that are put in for root cause analysis...
     #
@@ -459,7 +471,7 @@ def run_kpis(matrix_file, dat, reporting_yr_month,save_loc,save_name,save_yes_no
 
 
     dat.drop(['Origin Region', 'Origin'	,'Dest',	'Mode',	'Client Incoterm',
-               '2017-01 leadtimes','2017-02 leadtimes','Ta0'], axis=1, inplace=True)
+               '2017-01 leadtimes','2017-02 leadtimes'], axis=1, inplace=True)
 
     if matrix_var_name == 'Lead Time: ASN Creation > ATP Date (Days+2 Days)':
         dat.rename(columns = {'Lead Time: ASN Creation > ATP Date (Days+2 Days)':'Planned Lead Time'}, inplace = True)
@@ -495,6 +507,8 @@ def generate_individual_kpi_numbers(dat, months= ['2017-05'],matrix_file = ''):
     kpi_7_pass_perc_list = []
     kpi_7_eval_pass_list = []
 
+    value = []
+
     for month in months:
         dat2 = dat.copy()
         reporting_period = [month]
@@ -502,24 +516,31 @@ def generate_individual_kpi_numbers(dat, months= ['2017-05'],matrix_file = ''):
         dat2['Order Last Delivery Recorded Year - Month'] = dat2['Order Last Delivery Recorded Year - Month'].fillna('')
         dat2 = dat2[dat2['Order Last Delivery Recorded Year - Month'].str.contains(pattern)]
 
+        val = dat2['Shipment Value'].sum()
         otif_dict = dat2['COTD Category'].value_counts().to_dict()
         otif_total = float(sum(otif_dict.values()))
 
-        ontime = otif_dict['14 Days or Less']/otif_total
+        if '14 Days or Less' not in otif_dict:
+            otif_dict['14 Days or Less'] = 0
 
+        ontime = (otif_dict['14 Days or Less'] / otif_total ) * 100
 
         #KPI 4
         kpi_4_list = list(dat2['flt_vs_plt'])
         kpi_4_list = [x for x in kpi_4_list if str(x) != 'nan']
+        kpi_4_list = [x for x in kpi_4_list if str(x) != 'flt less than 0, check vendor inco and D1 dates']
 
         kpi_4_list = [float(i) for i in kpi_4_list]
-        kpi_4_eval = np.median(kpi_4_list)
+        kpi_4_eval = np.median(kpi_4_list)*100
 
         #KPI 5
         kpi_5_dict = dat2['KPI 5 FLT var>0'].value_counts().to_dict()
         kpi_5_totals = float(sum(kpi_5_dict.values()))
-        kpi5_within = kpi_5_dict['within']/kpi_5_totals
+        #print kpi_5_dict
+        if 'within' not in kpi_5_dict:
+            kpi_5_dict['within'] = 0
 
+        kpi5_within = (kpi_5_dict['within'] / kpi_5_totals) * 100
 
         def get_kpi_6(year_month):
 
@@ -558,9 +579,12 @@ def generate_individual_kpi_numbers(dat, months= ['2017-05'],matrix_file = ''):
         dat2 = dat2[dat2['Order Last Delivery Recorded Year - Month'].str.contains(pattern)]
 
         #KPI 6
+        if 'book_actual_vs_planned' not in list(dat2.columns):
+            dat2['book_actual_vs_planned'] = 'nan'
+
         kpi_6_list = list(dat2['book_actual_vs_planned'])
         kpi_6_list = [x for x in kpi_6_list if str(x) != 'nan']
-
+        #kpi_6_list = []
         #print kpi_6_list
         kpi_6_list = list(filter(str, kpi_6_list)) # fastest
         kpi_6_median = np.median(kpi_6_list)
@@ -627,33 +651,36 @@ def generate_individual_kpi_numbers(dat, months= ['2017-05'],matrix_file = ''):
         print reporting_period
         print matrix_file
         print
-        print("OTIF: %.4f%%" % (ontime * 100) + " or " + str(otif_dict['14 Days or Less']) + ' out of ' + str(otif_total) + " target >= 85%")
+        print("OTIF: %.4f%%" % (ontime) + " or " + str(otif_dict['14 Days or Less']) + ' out of ' + str(otif_total) + " target >= 85%")
         print
         print("PE Turnaround: " + str(pe_turnaround) + " target <= 3 days" + " N=" + str(pe_to_list))
         print
         print("PO Turnaround: " + str(po_turnaround) + " target <= 7 days" + " N=" + str(po_to_list))
         print
         print(
-        "FLT: %.4f%%" % (kpi_4_eval * 100) + " total of " + str(len(kpi_4_list)) + " target -12% <= x <= 12% ")
+        "FLT: %.4f%%" % (kpi_4_eval) + " total of " + str(len(kpi_4_list)) + " target -12% <= x <= 12% ")
+
         print
-        print("Within Lead Times: %.2f%%" % (kpi5_within * 100) + ' or ' + str(kpi_5_dict['within']) + ' out of ' + str(
+        print("Within Lead Times: %.2f%%" % (kpi5_within) + ' or ' + str(kpi_5_dict['within']) + ' out of ' + str(
             kpi_5_totals) + " target >=75%")
         print
         print('Freight Costs: ' + str(kpi_6_median) + " target median +- 10% N= " + str(len(kpi_6_list)))
         print
         print("Within Freight Costs: %.2f%%" % (kpi_7_eval_pass_per) + ' or ' + str(kpi_7_eval_pass) + ' out of ' + str(kpi_6_list_len) + " target >=75%")
+
         print('############################## KPI OUTPUTS ##############################')
 
-        otif_final.append(str(ontime * 100)+'%')
+        otif_final.append(str(ontime)+'%')
         ontime_number.append(otif_dict['14 Days or Less'])
         otif_total_list.append(otif_total)
         pe_time.append(pe_turnaround)
         pe_num.append(pe_to_list)
         po_time.append(po_turnaround)
         po_num.append(po_to_list)
-        kpi_4_eval_total.append(str(kpi_4_eval * 100)+'%')
+        kpi_4_eval_total.append(str(kpi_4_eval)+'%')
         kpi4_num.append(len(kpi_4_list))
-        kpi_5_num.append(str(kpi5_within * 100)+'%')
+        value.append(val)
+        kpi_5_num.append(str(kpi5_within)+'%')
         kpi_5_within.append(kpi_5_dict['within'])
         kpi_5_total_list.append(kpi_5_totals)
         kpi_6_median_list.append(kpi_6_median)
@@ -667,12 +694,13 @@ def generate_individual_kpi_numbers(dat, months= ['2017-05'],matrix_file = ''):
                             'kpi4 number of orders': kpi4_num,'kpi 5': kpi_5_num,'kpi5 in bounds': kpi_5_within,
                             'kpi 5 total number of orders':kpi_5_total_list,'KPI 6 median':kpi_6_median_list,
                             'kpi 6 total number of orders':kpi_6_total_list, 'KPI 7 pass':kpi_7_pass_perc_list,
-                            'kpi 7 number of orders within bounds':kpi_7_eval_pass_list})
+                            'kpi 7 number of orders within bounds':kpi_7_eval_pass_list,'shipment value':value})
 
     cols = ['Reporting period','OTIF Percent','# ontime orders','total number of orders KPI 1','pe turnaround',
             'number of PEs','po turnaround','number of POs','kpi 4 flt vs plt','kpi4 number of orders','kpi 5',
             'kpi5 in bounds','kpi 5 total number of orders','KPI 6 median','kpi 6 total number of orders',
-            'KPI 7 pass','kpi 7 number of orders within bounds']
+            'KPI 7 pass','kpi 7 number of orders within bounds','shipment value']
+
     dat_kpi = dat_kpi[cols]
     print("--- %s seconds ---" % (time.time() - start_time))
 
@@ -690,18 +718,30 @@ def generate_total_kpi(dat, months= ['2017-01','2017-02','2017-03'],matrix_file=
     dat2 = dat2[dat2['Order Last Delivery Recorded Year - Month'].str.contains(pattern)]
     otif_dict = dat2['COTD Category'].value_counts().to_dict()
     otif_total = float(sum(otif_dict.values()))
-    ontime = otif_dict['14 Days or Less']/otif_total
+
+    #adding in code to cover situations where dicts are missing keys that are used to calculate
+    if '14 Days or Less' not in otif_dict:
+        otif_dict['14 Days or Less'] = 0
+
+    ontime = (otif_dict['14 Days or Less']/otif_total)* 100
 
     #KPI 4
     kpi_4_list = list(dat2['flt_vs_plt'])
     kpi_4_list = [x for x in kpi_4_list if str(x) != 'nan']
+    kpi_4_list = [x for x in kpi_4_list if str(x) != 'flt less than 0, check vendor inco and D1 dates']
+    #
+    print kpi_4_list
     kpi_4_list = [float(i) for i in kpi_4_list]
-    kpi_4_eval = np.median(kpi_4_list)
+    kpi_4_eval = np.median(kpi_4_list)* 100
 
     #KPI 5
     kpi_5_dict = dat2['KPI 5 FLT var>0'].value_counts().to_dict()
     kpi_5_totals = float(sum(kpi_5_dict.values()))
-    kpi5_within = kpi_5_dict['within']/kpi_5_totals
+
+    if 'within' not in kpi_5_dict:
+        kpi_5_dict['within'] = 0
+
+    kpi5_within = (kpi_5_dict['within']/kpi_5_totals)* 100
 
     def get_kpi_6(year_month):
         month = year_month[-2:]
@@ -734,14 +774,22 @@ def generate_total_kpi(dat, months= ['2017-01','2017-02','2017-03'],matrix_file=
     dat2['Order Last Delivery Recorded Year - Month'] = dat2['Order Last Delivery Recorded Year - Month'].fillna('')
     dat2 = dat2[dat2['Order Last Delivery Recorded Year - Month'].str.contains(pattern)]
     #KPI 6
+    kpi_6_list = []
+
     kpi_6_list = list(dat2['book_actual_vs_planned'])
     kpi_6_list = [x for x in kpi_6_list if str(x) != 'nan']
     #print kpi_6_list
     kpi_6_list = list(filter(str, kpi_6_list)) # fastest
     kpi_6_median = np.median(kpi_6_list)
     #kpi 7
-    kpi_7_eval_pass_per =  float(sum(i <= 0 for i in kpi_6_list)) / len(kpi_6_list) #how many within
-    kpi_7_eval_pass =  int(sum(i <= 0 for i in kpi_6_list))
+    if len(kpi_6_list) != 0:
+
+        kpi_7_eval_pass_per =  float(sum(i <= 0 for i in kpi_6_list)) / len(kpi_6_list) * 100#how many within
+        kpi_7_eval_pass =  int(sum(i <= 0 for i in kpi_6_list))
+
+    if len(kpi_6_list) == 0:
+        kpi_7_eval_pass_per = 0.0
+        kpi_7_eval_pass = 0.0
     # kpi 2 and 3
     del dat2
     dat2 = dat.copy()
@@ -778,21 +826,21 @@ def generate_total_kpi(dat, months= ['2017-01','2017-02','2017-03'],matrix_file=
     print reporting_period
     print matrix_file
     print
-    print("OTIF: %.4f%%" % (ontime * 100) + " or " + str(otif_dict['14 Days or Less']) + ' out of ' + str(otif_total) + " target >= 85%")
+    print("OTIF: %.4f%%" % (ontime) + " or " + str(otif_dict['14 Days or Less']) + ' out of ' + str(otif_total) + " target >= 85%")
     print
     print("PE Turnaround: " + str(pe_turnaround) + " target <= 3 days" + " N=" + str(pe_to_list))
     print
     print("PO Turnaround: " + str(po_turnaround) + " target <= 7 days" + " N=" + str(po_to_list))
     print
     print(
-    "FLT: %.4f%%" % (kpi_4_eval * 100) + " total of " + str(len(kpi_4_list)) + " target -12% <= x <= 12% ")
+    "FLT: %.4f%%" % (kpi_4_eval) + " total of " + str(len(kpi_4_list)) + " target -12% <= x <= 12% ")
     print
-    print("Within Lead Times: %.2f%%" % (kpi5_within * 100) + ' or ' + str(kpi_5_dict['within']) + ' out of ' + str(
+    print("Within Lead Times: %.2f%%" % (kpi5_within) + ' or ' + str(kpi_5_dict['within']) + ' out of ' + str(
         kpi_5_totals) + " target >=75%")
     print
     print('Freight Costs: ' + str(kpi_6_median) + " target median +- 10% N= " + str(len(kpi_6_list)))
     print
-    print("Within Freight Costs: %.2f%%" % (kpi_7_eval_pass_per * 100) + ' or ' + str(kpi_7_eval_pass) + ' out of ' + str(
+    print("Within Freight Costs: %.2f%%" % (kpi_7_eval_pass_per) + ' or ' + str(kpi_7_eval_pass) + ' out of ' + str(
         len(kpi_6_list)) + " target >=75%")
     print('############################## KPI OUTPUTS ##############################')
     print("--- %s seconds ---" % (time.time() - start_time))

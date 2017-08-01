@@ -30,7 +30,7 @@ import time
 MC_directory = 'C:/Users/585000/Desktop/PCFSM/2017 KPIs/'
 
 ### USE PAD COR not pad cor ppm
-matrix_file = 'PAD COR 8_1_17'
+matrix_file = 'program_id PADCOR merge_3'
 #matrix_file = 'PAD COR 7_13_17_test_environment'
 dat = pd.read_csv(MC_directory + matrix_file+'.csv')
 
@@ -45,13 +45,13 @@ new_dat = pd.read_csv('C:/Users/585000/Desktop/PCFSM/2017 KPIs/PAD COR 7_14_17.c
 old_dat = replace_SCMS(old_dat)
 new_dat = replace_SCMS(new_dat)
 
-version='july_test_new_matrix'
-month = 'July'
+version='proj_id_v3'
+month = 'test_non_ppm'
 
 #OPTIONS
 save_yes_no = 'yes'
 #KPIs
-reporting_period = '2017-07'
+reporting_period = '2017-06'
 #checking supply
 comparison_date = '06/06/2017'
 supply_period = '2017'
@@ -77,7 +77,7 @@ if os.path.isfile(save_loc+save_name) == False:
     #all this does is replace scms with po...
     dat2 = replace_SCMS(dat)
 
-    dat2 = full_file.run_kpis(matrix_file, dat, reporting_period, save_loc, save_name, save_yes_no=save_yes_no,TGF = 'Yes')
+    c = full_file.run_kpis(matrix_file, dat, reporting_period, save_loc, save_name, save_yes_no=save_yes_no,TGF = 'no')
 
 
 if os.path.isfile(save_loc+save_name) == True:
@@ -96,14 +96,24 @@ print
 #runtime .092 seconds for 1 month
 #currently just setting it to do one month set by reporting month
 
+full_list_for_non_ppm_test = ['2016-01','2016-02','2016-03','2016-04','2016-05','2016-06','2016-07','2016-08','2016-09',
+ '2016-10','2016-11','2016-12','2017-01','2017-02','2017-03','2017-04','2017-05','2017-06']
 
-kpi_dat = full_file.generate_individual_kpi_numbers(dat2, months= [reporting_period],matrix_file = matrix_file)
+kpi_dat = full_file.generate_individual_kpi_numbers(dat2, months= full_list_for_non_ppm_test,matrix_file = matrix_file)
 
 #for a full period, people ask frequently
 kpi_dat.to_csv(save_loc+matrix_file+'_kpi_outputs_aggregated.csv',index=False)
 
+supplier_list = ['Janssen','Gilead','Malaria Consortium','MOH of Dom Republic']
 
-full_file.generate_total_kpi(dat2, months= [reporting_period],matrix_file=matrix_file)
+for supplier in supplier_list:
+    dat3 = dat2.copy()
+    dat3 =dat3[dat3['Managed By']==supplier]
+    kpi_dat = full_file.generate_individual_kpi_numbers(dat3, months=full_list_for_non_ppm_test,
+                                                        matrix_file=matrix_file)
+    kpi_dat.to_csv(save_loc + matrix_file +"_" +supplier+'_kpi_outputs_aggregated.csv', index=False)
+
+full_file.generate_total_kpi(dat2, months= full_list_for_non_ppm_test,matrix_file=matrix_file)
 
 
 full_file.generate_total_kpi(dat2, months= ['2017-01','2017-02','2017-03','2017-04','2017-05'],matrix_file=matrix_file)
@@ -112,23 +122,3 @@ full_file.generate_total_kpi(dat2, months= ['2017-01','2017-02','2017-03','2017-
 just_kpis = full_file.generate_just_kpi_period_dataset(dat2, months=[reporting_period])
 
 just_kpis.to_csv(save_loc+matrix_file+'_just_kpi_rows.csv',index=False)
-
-print '############################## Duplicates ##############################'
-
-check_incomplete_duplicates(dat, period = supply_period)
-
-print '############################## Old vs New ##############################'
-
-compare_padcors(old_dat,new_dat,save_loc,compare_save_name,compare_reporting_order_month)
-
-print '############################## Supplier Fields for LSU ##############################'
-
-check_for_blanks(dat,comparison_date,supply_save_name,save_loc,period = supply_period,reporting_period=reporting_period)
-
-print '############################## VIPD_Checks  ##############################'
-vipd_checks_vs_po_create(dat,comparison_date,save_loc,checking_vipd_po)
-
-print("total time --- %s seconds ---" % (time.time() - start_timez))
-print '############################## Done ##############################'
-
-

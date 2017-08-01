@@ -20,7 +20,7 @@ from mrkpicheck.checking_blank_fields import check_for_blanks
 from mrkpicheck.lsu_vipd_request import vipd_checks_vs_po_create
 from mrkpicheck.data_cleaning import replace_SCMS
 import mrkpicheck.full_file_kpis as full_file
-
+from mrkpicheck.outlier_checks import do_the_thing
 
 
 import os.path
@@ -56,7 +56,7 @@ reporting_period = '2017-07'
 comparison_date = '06/06/2017'
 supply_period = '2017'
 #comparing pad cors
-compare_reporting_order_month = ['2017-01','2017-02','2017-03','2017-04','2017-05']
+compare_reporting_order_month = ['2017-01','2017-02','2017-03','2017-04','2017-05','2017-06']
 Monday = 'yes'
 #PE PO
 pe_po_period  = '2017'
@@ -68,6 +68,7 @@ compare_save_name = "change_tracker_"+matrix_file+version+'.xlsx'
 supply_save_name = 'kpi_and_supplier_checks_'+matrix_file+version+'.xlsx'
 blank_save_name = 'Checking_blanks_'+matrix_file+version+'.xlsx'
 checking_vipd_po = matrix_file+version+'_VIFD_report.xlsx'
+outlier_file = 'Outliers_'+matrix_file+version+'.xlsx'
 
 
 if not os.path.exists(save_loc):
@@ -106,10 +107,12 @@ kpi_dat.to_csv(save_loc+matrix_file+'_kpi_outputs_aggregated.csv',index=False)
 full_file.generate_total_kpi(dat2, months= [reporting_period],matrix_file=matrix_file)
 
 
-full_file.generate_total_kpi(dat2, months= ['2017-01','2017-02','2017-03','2017-04','2017-05'],matrix_file=matrix_file)
+full_file.generate_total_kpi(dat2, months= ['2017-01','2017-02','2017-03','2017-04','2017-05','2017-06'],matrix_file=matrix_file)
 
 
 just_kpis = full_file.generate_just_kpi_period_dataset(dat2, months=[reporting_period])
+#adding new file to mark outliers for kpi 1-5
+do_the_thing(just_kpis,save_loc=save_loc,save_name=outlier_file)
 
 just_kpis.to_csv(save_loc+matrix_file+'_just_kpi_rows.csv',index=False)
 

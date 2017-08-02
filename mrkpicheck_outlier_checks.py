@@ -16,7 +16,8 @@ reason being it will be super fast to iterate over the 7 kpis in a file of aroun
 '''
 
 #rename to be less terrible at your leisure
-def format_for_teams(dat,kpi_num,outlier_col,reporting_cols=[]):
+def format_for_teams(dat2,kpi_num,outlier_col,reporting_cols=[]):
+    dat = dat2.copy()
     main = ['Waiver Required?',
  'Grant#',
  'Project Code',
@@ -125,6 +126,10 @@ def format_for_teams(dat,kpi_num,outlier_col,reporting_cols=[]):
  "Root Cause Analysis (PFSCM days delay explanation)",
  'What is the Corrective Action?'
  ]
+    '''
+    'PE_outliers'
+'PO_outliers'
+    '''
     outlier = [outlier_col]
 
     col_list = main+reporting_cols+outlier+summary
@@ -133,11 +138,17 @@ def format_for_teams(dat,kpi_num,outlier_col,reporting_cols=[]):
     dat = dat[((dat[kpi_num] == 'Yes') & (dat[outlier_col] != 'within'))][col_list] #\
     dat = dat.drop(outlier_col, 1)
 
+    if outlier_col == 'PE_outliers':
+        dat = dat.drop_duplicates(['PE#','pe_turnaround'])
+
+    if outlier_col == 'PO_outliers':
+        dat = dat.drop_duplicates(['Order#','po_turnaround'])
+
     return dat
 
 
-def do_the_thing(dat,save_loc, save_name):
-
+def do_the_thing(dat2,save_loc, save_name):
+    dat = dat2.copy()
     #just gonna slice and dice a bunch
     #OTIF
 
@@ -206,17 +217,15 @@ def do_the_thing(dat,save_loc, save_name):
 
 
     writer = pd.ExcelWriter(save_loc + save_name)
-    print('pe out',dat['PE_outliers'].value_counts())
-    print('po out',dat['PO_outliers'].value_counts())
-    #dat2.to_excel(writer, 'Supplier Date Checks', index=False)
-    #def format_for_teams(dat,kpi_num,outlier_col):
+
+
     format_for_teams(dat,kpi_num='KPI 1_4_5',outlier_col='Otif_outliers',reporting_cols=['COTD Category']).to_excel(writer, 'OTIF Outliers', index=False)
     format_for_teams(dat,kpi_num='KPI 2',outlier_col='PE_outliers',reporting_cols=['pe_turnaround']).to_excel(writer, 'PE Outliers', index=False)
     format_for_teams(dat,kpi_num='KPI 3',outlier_col='PO_outliers',reporting_cols=['po_turnaround']).to_excel(writer, 'PO Outliers', index=False)
     format_for_teams(dat,kpi_num='KPI 1_4_5',outlier_col='kpi4_outliers',reporting_cols=['Full Lead Time (not including production)','Actual Freight Leadtime',
-                                                                                         'flt_vs_plt','flt_-_plt']).to_excel(writer, 'Freight Cost Outliers', index=False)
+                                                                                         'flt_vs_plt','flt_-_plt']).to_excel(writer, 'FLT Outliers', index=False)
     format_for_teams(dat,kpi_num='KPI 1_4_5',outlier_col='kpi5_outliers',reporting_cols=['Full Lead Time (not including production)','Actual Freight Leadtime',
-                                                                                         'flt_vs_plt','flt_-_plt']).to_excel(writer, 'Within Freight Cost Outliers', index=False)
+                                                                                         'flt_vs_plt','flt_-_plt']).to_excel(writer, 'Within FLT Outliers', index=False)
     #format_for_teams(dat,kpi_num='KPI 1_4_5',outlier_col='kpi6_outliers').to_excel(writer, 'Within Freight Cost Outliers', index=False)
     #format_for_teams(dat,kpi_num='KPI 1_4_5',outlier_col='kpi7_outliers').to_excel(writer, 'Within Freight Cost Outliers', index=False)
 
@@ -226,18 +235,5 @@ def do_the_thing(dat,save_loc, save_name):
 
     writer.save()
 
-    #print dat2.shape
     return dat
-
-
-#
-#save_loc= 'C:/Users/585000/Desktop/PCFSM/monthly reporting files/July/july_test_new_matrix/'
-#save_name = 'outlier_test.xlsx'
-#dd= pd.read_csv('C:/Users/585000/Desktop/PCFSM/monthly reporting files/July/july_test_new_matrix/PAD COR 8_1_17_just_kpi_rows.csv')
-
-
-#tt = do_the_thing(dd,save_loc,save_name)
-#new_df = old_df[((old_df['C1'] > 0) & (old_df['C1'] < 20)) & ((old_df['C2'] > 0) & (old_df['C2'] < 20)) & ((old_df['C3'] > 0) & (old_df['C3'] < 20))]
-
-#list(tt[((tt['KPI 1_4_5']=='Yes') & (tt['Otif_outliers']!='within'))][make_col_list('Otif_outliers')].columns)
 

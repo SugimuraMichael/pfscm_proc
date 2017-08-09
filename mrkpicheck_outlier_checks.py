@@ -1,9 +1,10 @@
 import pandas as pd
-
+from collections import Counter
+import numpy as np
 import sys
 
-reload(sys)
-sys.setdefaultencoding('latin-1')
+#reload(sys)
+#sys.setdefaultencoding('latin-1')
 
 '''
 write outlier files to a sheet because reasons. also boredom on a tuesday
@@ -132,17 +133,36 @@ def format_for_teams(dat2,kpi_num,outlier_col,reporting_cols=[]):
     '''
     outlier = [outlier_col]
 
+    if 'COTD Category' in reporting_cols:
+
+        dat['COTD_Category'] = dat['COTD Category']
+        reporting_cols = ['COTD_Category']
+
     col_list = main+reporting_cols+outlier+summary
     #def format_for_teams(dat,kpi_num,outlier_col):
     dat['Notes'] = dat[outlier_col]
+
     dat = dat[((dat[kpi_num] == 'Yes') & (dat[outlier_col] != 'within'))][col_list] #\
     dat = dat.drop(outlier_col, 1)
+
+
 
     if outlier_col == 'PE_outliers':
         dat = dat.drop_duplicates(['PE#','pe_turnaround'])
 
     if outlier_col == 'PO_outliers':
         dat = dat.drop_duplicates(['Order#','po_turnaround'])
+
+    col_list_dat = list(dat.columns)
+    #print [k for (k, v) in Counter(col_list_dat).iteritems() if v > 1]
+
+    #print len(col_list_dat)
+    #print dat.columns.nunique()
+    for i in col_list_dat:
+        if dat[i].dtypes == np.object:
+            #print i
+            dat[i] = dat[i].fillna('')
+            dat[i] = dat[i].str.decode('latin-1')
 
     return dat
 
@@ -218,6 +238,15 @@ def do_the_thing(dat2,save_loc, save_name):
 
     writer = pd.ExcelWriter(save_loc + save_name)
 
+    '''
+    for index, row in dat.iterrows():
+        print row['Order Pick Up Country Name'], row['Order Pick Up Country Name'].decode('latin-1')
+        print row['Ship To Country Name'], row['Ship To Country Name'].decode('latin-1')
+    '''
+    #dat['Order Pick Up Country Name'] = dat['Order Pick Up Country Name'].str.decode('latin-1').str.encode('utf8')
+    #dat['Ship To Country Name'] = dat['Ship To Country Name'].str.decode('latin-1').str.encode('utf8')
+
+    #dat= dat.str.decode('latin-1').str.encode('utf8')
 
     format_for_teams(dat,kpi_num='KPI 1_4_5',outlier_col='Otif_outliers',reporting_cols=['COTD Category']).to_excel(writer, 'OTIF Outliers', index=False)
     format_for_teams(dat,kpi_num='KPI 2',outlier_col='PE_outliers',reporting_cols=['pe_turnaround']).to_excel(writer, 'PE Outliers', index=False)
@@ -226,6 +255,8 @@ def do_the_thing(dat2,save_loc, save_name):
                                                                                          'flt_vs_plt','flt_-_plt']).to_excel(writer, 'FLT Outliers', index=False)
     format_for_teams(dat,kpi_num='KPI 1_4_5',outlier_col='kpi5_outliers',reporting_cols=['Full Lead Time (not including production)','Actual Freight Leadtime',
                                                                                          'flt_vs_plt','flt_-_plt']).to_excel(writer, 'Within FLT Outliers', index=False)
+
+    print 'finished things'
     #format_for_teams(dat,kpi_num='KPI 1_4_5',outlier_col='kpi6_outliers').to_excel(writer, 'Within Freight Cost Outliers', index=False)
     #format_for_teams(dat,kpi_num='KPI 1_4_5',outlier_col='kpi7_outliers').to_excel(writer, 'Within Freight Cost Outliers', index=False)
 
@@ -237,3 +268,28 @@ def do_the_thing(dat2,save_loc, save_name):
 
     return dat
 
+#do_the_thing(just_kpis,save_loc=save_loc,save_name=outlier_file)
+
+'''
+
+lizz = dat['Order Pick Up Country Name'].unique()
+
+
+for i in lizz:
+    print unicode(i, "latin-1")
+    print type(i),i,i.decode('latin-1').encode('utf8')
+
+
+z = "C\xf4te d'Ivoire"
+
+z = z.decode('latin-1')
+print z
+
+col_list_dat = list(dat.columns)
+for col in col_list_dat:
+    if dat[col].dtypes == 'O':
+        print col
+        dat[col] = dat[col].str.decode('latin-1').str.encode('utf8')
+
+
+'''

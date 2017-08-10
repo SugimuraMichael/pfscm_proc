@@ -19,7 +19,8 @@ just_kpis = full_file.generate_just_kpi_period_dataset(dat, months=[reporting_pe
 reason being it will be super fast to iterate over the 7 kpis in a file of around a few hundred lines
 '''
 
-#rename to be less terrible at your leisure
+#this function is for formating the final output to be what the teams are used to... 
+# the columns could likely be reduced to more of the 
 def format_for_teams(dat2,kpi_num,outlier_col,reporting_cols=[]):
     dat = dat2.copy()
     main = ['Waiver Required?',
@@ -135,7 +136,7 @@ def format_for_teams(dat2,kpi_num,outlier_col,reporting_cols=[]):
 'PO_outliers'
     '''
     outlier = [outlier_col]
-
+    
     if 'COTD Category' in reporting_cols:
 
         dat['COTD_Category'] = dat['COTD Category']
@@ -163,6 +164,9 @@ def format_for_teams(dat2,kpi_num,outlier_col,reporting_cols=[]):
 
     #print len(col_list_dat)
     #print dat.columns.nunique()
+    #This section of code basically goes through and encodes all text columns, encoded as numpy.object in pandas
+    # and decodes them as latin-1 ISO-8859-1 which makes it digestible for the excel files
+    
     for i in col_list_dat:
         if dat[i].dtypes == np.object:
             #print i
@@ -240,6 +244,7 @@ def do_the_thing(dat2,save_loc, save_name):
 
                 if row['po_turnaround'] > 7:
                     dat.loc[index, 'PO_outliers'] = 'turnaround time over 7 calendar days'
+<<<<<<< HEAD
 
         #    #if bvp <=.1 and bvp >=-.1:
                 #    dat.loc[index, 'KPI 6 freight_costs'] = 0
@@ -259,6 +264,14 @@ def do_the_thing(dat2,save_loc, save_name):
 
 
 
+=======
+    '''
+    write to pages for each of the KPIs, currently do not have anything working for KPIs 6 and 7... technically will be doable
+    estimated time to code would be 2 hours. 
+    
+    sheets are formatted based on the format_for_teams function at the begining of the file. 
+    '''
+>>>>>>> origin/master
 
     writer = pd.ExcelWriter(save_loc + save_name)
 
@@ -292,5 +305,8 @@ def do_the_thing(dat2,save_loc, save_name):
     writer.save()
 
     return dat
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> origin/master

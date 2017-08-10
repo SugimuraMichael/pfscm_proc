@@ -244,7 +244,6 @@ def do_the_thing(dat2,save_loc, save_name):
 
                 if row['po_turnaround'] > 7:
                     dat.loc[index, 'PO_outliers'] = 'turnaround time over 7 calendar days'
-<<<<<<< HEAD
 
         #    #if bvp <=.1 and bvp >=-.1:
                 #    dat.loc[index, 'KPI 6 freight_costs'] = 0
@@ -264,14 +263,12 @@ def do_the_thing(dat2,save_loc, save_name):
 
 
 
-=======
     '''
     write to pages for each of the KPIs, currently do not have anything working for KPIs 6 and 7... technically will be doable
     estimated time to code would be 2 hours. 
     
     sheets are formatted based on the format_for_teams function at the begining of the file. 
     '''
->>>>>>> origin/master
 
     writer = pd.ExcelWriter(save_loc + save_name)
 
@@ -305,8 +302,3 @@ def do_the_thing(dat2,save_loc, save_name):
     writer.save()
 
     return dat
-<<<<<<< HEAD
-
-
-=======
->>>>>>> origin/master

@@ -7,6 +7,9 @@ import sys
 #sys.setdefaultencoding('latin-1')
 
 '''
+#### Update 8/10: added section to account for KPI 6. So KPIs 1,2,3,4,6 are accounted for. KPI 5 and 7 are largely
+duplicative of 4 and 6 as of now. this may change in the future as clients want more visibility into the KPIs
+
 write outlier files to a sheet because reasons. also boredom on a tuesday
 
 intake a processed kpi file/dataframe, the one that has been subsetted to just the kpirows
@@ -142,6 +145,8 @@ def format_for_teams(dat2,kpi_num,outlier_col,reporting_cols=[]):
     #def format_for_teams(dat,kpi_num,outlier_col):
     dat['Notes'] = dat[outlier_col]
 
+    #most of the work in this file gets done here... subset based on two criteria and only keep the column list
+    # as specified before
     dat = dat[((dat[kpi_num] == 'Yes') & (dat[outlier_col] != 'within'))][col_list] #\
     dat = dat.drop(outlier_col, 1)
 
@@ -191,6 +196,7 @@ def do_the_thing(dat2,save_loc, save_name):
     dat['What is the Corrective Action?'] = ''
 
 
+
     for index, row in dat.iterrows():
 
         #evaluate for KPI 1 4 and 5
@@ -235,6 +241,24 @@ def do_the_thing(dat2,save_loc, save_name):
                 if row['po_turnaround'] > 7:
                     dat.loc[index, 'PO_outliers'] = 'turnaround time over 7 calendar days'
 
+        #    #if bvp <=.1 and bvp >=-.1:
+                #    dat.loc[index, 'KPI 6 freight_costs'] = 0
+        if row['KPI 6_7'] == 'Yes':
+            if pd.isnull(row['book_actual_vs_planned']) == True:
+
+                if pd.isnull(row['Planned Cost']) == True and pd.isnull(row['Total Freight Cost']) != True:
+                    dat.loc[index, 'kpi6_outliers'] = 'Planned Freight Cost Missing'
+                if pd.isnull(row['Planned Cost']) != True and pd.isnull(row['Total Freight Cost']) == True:
+                    dat.loc[index, 'kpi6_outliers'] = 'Actual Freight Cost Missing'
+                if pd.isnull(row['Planned Cost']) == True and pd.isnull(row['Total Freight Cost']) == True:
+                    dat.loc[index, 'kpi6_outliers'] = 'Planned and Actual Cost both missing'
+
+            if pd.isnull(row['book_actual_vs_planned']) != True:
+                if row['book_actual_vs_planned'] < -.1 or row['book_actual_vs_planned'] > .1:
+                    dat.loc[index, 'kpi6_outliers'] = 'over 10% variance'
+
+
+
 
     writer = pd.ExcelWriter(save_loc + save_name)
 
@@ -256,9 +280,10 @@ def do_the_thing(dat2,save_loc, save_name):
     format_for_teams(dat,kpi_num='KPI 1_4_5',outlier_col='kpi5_outliers',reporting_cols=['Full Lead Time (not including production)','Actual Freight Leadtime',
                                                                                          'flt_vs_plt','flt_-_plt']).to_excel(writer, 'Within FLT Outliers', index=False)
 
-    print 'finished things'
-    #format_for_teams(dat,kpi_num='KPI 1_4_5',outlier_col='kpi6_outliers').to_excel(writer, 'Within Freight Cost Outliers', index=False)
+    format_for_teams(dat,kpi_num='KPI 6_7',outlier_col='kpi6_outliers',reporting_cols=['Planned Cost','Total Freight Cost',
+                                                                                         'book_actual_vs_planned']).to_excel(writer, 'Freight Cost Variance Outliers', index=False)
     #format_for_teams(dat,kpi_num='KPI 1_4_5',outlier_col='kpi7_outliers').to_excel(writer, 'Within Freight Cost Outliers', index=False)
+    print 'finished things'
 
 
 
@@ -268,28 +293,4 @@ def do_the_thing(dat2,save_loc, save_name):
 
     return dat
 
-#do_the_thing(just_kpis,save_loc=save_loc,save_name=outlier_file)
 
-'''
-
-lizz = dat['Order Pick Up Country Name'].unique()
-
-
-for i in lizz:
-    print unicode(i, "latin-1")
-    print type(i),i,i.decode('latin-1').encode('utf8')
-
-
-z = "C\xf4te d'Ivoire"
-
-z = z.decode('latin-1')
-print z
-
-col_list_dat = list(dat.columns)
-for col in col_list_dat:
-    if dat[col].dtypes == 'O':
-        print col
-        dat[col] = dat[col].str.decode('latin-1').str.encode('utf8')
-
-
-'''

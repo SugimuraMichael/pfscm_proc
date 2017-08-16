@@ -255,6 +255,13 @@ def do_the_thing(dat2,save_loc, save_name):
 
 
 
+    '''
+    write to pages for each of the KPIs, currently do not have anything working for KPIs 6 and 7... technically will be doable
+    estimated time to code would be 2 hours. 
+    
+    sheets are formatted based on the format_for_teams function at the begining of the file. 
+    '''
+
     writer = pd.ExcelWriter(save_loc + save_name)
 
     '''
@@ -283,5 +290,3 @@ def do_the_thing(dat2,save_loc, save_name):
     writer.save()
 
     return dat
-
-

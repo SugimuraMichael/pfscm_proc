@@ -61,8 +61,7 @@ def compare_padcors(old_dat,new_dat,saveloc, save_name, reporting_order_month = 
     neo_pe_tracker = {}
     for month in reporting_order_month:
 
-
-        DATE_TO_COMPARE = '05/05/2017'
+        print '########################## Current month is'+ month +' ########################## '
         #                                                CHANGE THIS
         #VPD_comparison_date = datetime.strptime(DATE_TO_COMPARE, "%m/%d/%Y").date()
 

@@ -80,7 +80,10 @@ def check_for_blanks(dat,DATE_TO_COMPARE,save_name,save_loc, period ='2017',repo
                  dat2['Order Created Date'] + dat2['PQ Last Client Response Date'] + dat2['PQ First Response Date'] + \
                  dat2['PQ Create Date'] + dat2['PQ First Approved Date']
 
-    dat2 = dat2[dat2['id'].str.contains(period)==True]
+    pattern = '|'.join(period)
+    # dat2 = dat2[dat2['Order Last Delivery Recorded Year - Month'].str.contains(pattern)]
+
+    dat2 = dat2[dat2['id'].str.contains(pattern)==True]
 
     dat2['slicer_1'] = 0
 
@@ -178,7 +181,10 @@ def check_for_blanks(dat,DATE_TO_COMPARE,save_name,save_loc, period ='2017',repo
                  dat2['Order Created Date'] + dat2['PQ Last Client Response Date'] + dat2['PQ First Response Date'] + \
                  dat2['PQ Create Date'] + dat2['PQ First Approved Date']
 
-    dat2 = dat2[dat2['id'].str.contains(period) == True]
+    pattern = '|'.join(period)
+
+    dat2 = dat2[dat2['id'].str.contains(pattern) == True]
+    #dat2 = dat2[dat2['id'].str.contains(period) == True]
 
     dat2['slicer_1'] = 0
 
@@ -192,7 +198,6 @@ def check_for_blanks(dat,DATE_TO_COMPARE,save_name,save_loc, period ='2017',repo
         po_conf = str(row['PO Vendor Confirmed Date'])
         po_sent = str(row['PO Sent to Vendor Date'])
         pq_action = str(row['PQ Actionable Date'])
-
 
         if po_sent == '':
             dat2.loc[index,'slicer_1'] = 1
@@ -270,8 +275,9 @@ def check_for_blanks(dat,DATE_TO_COMPARE,save_name,save_loc, period ='2017',repo
     dat2['id'] = dat2['PR Received Date'] + dat2['PE Actionable Date'] + dat2['PE Expiry Date'] + \
                  dat2['PE Estimate Ready Date'] + dat2['PE Sent Date'] + dat2['PE Create Date'] + \
                  dat2['PR Last Submitted Date']
+    pattern = '|'.join(period)
 
-    dat2 = dat2[dat2['id'].str.contains(period)==True]
+    dat2 = dat2[dat2['id'].str.contains(pattern)==True]
 
     dat2['slicer_1'] = 0
 

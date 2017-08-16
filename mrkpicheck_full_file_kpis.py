@@ -1,12 +1,9 @@
 
 
-
 '''
-8/1/2017
-Added contingencies to deal with non ppm reporting, additional option called TGF that defaults to yes. this will subset the dataset
-setting it to anything besides yes will cause it to be run on the whole dataset. runtime of around 400 seconds vs the 80 with 
-only tgf. Also i added additional code to handle blank lines so the functions should always run, but will show 0 or nan values where
-there are 0 observations
+8/15/2017
+updated to output a file that matches what needs to be submitted to the global fund on a monthly basis... 133 standard
+columns and 4 additional columns for Planned and actual FLT, and Planned and Actual Cost.
 
 6/23/2017
 Updated to include additonal functiosn for KPI calculation. these run in a much shorter time frame than previous
@@ -50,6 +47,8 @@ import gspread
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 import math
+import re
+
 from collections import Counter
 
 
@@ -160,7 +159,9 @@ def run_kpis(matrix_file, dat, reporting_yr_month,save_loc,save_name,save_yes_no
     spreadsheet['Shipment#'] = asn['Shipment#']
     spreadsheet['Planned Cost'] = planned['Planned Cost']
     spreadsheet['Total Freight Cost'] = actual['Total Freight Cost']
-    spreadsheet['Total Freight Cost'] = spreadsheet['Total Freight Cost'].str.replace('#N/A', '0')
+    spreadsheet['Total Freight Cost'] = spreadsheet['Total Freight Cost'].str.replace('#N/A', '')
+    #spreadsheet['Planned Cost'] = spreadsheet['Planned Cost'].str.replace('#N/A', '')
+
     #spreadsheet['Total Freight Cost'] = spreadsheet['Total Freight Cost'].str.replace('', '0')
 
     spreadsheet['slicer'] = 0
@@ -450,7 +451,9 @@ def run_kpis(matrix_file, dat, reporting_yr_month,save_loc,save_name,save_yes_no
                 total_freight  = (float(total_fc) - float(side_costs))
                 bvp = (total_freight - planned) / planned
                 dat.loc[index,'book_actual_vs_planned'] = bvp
-                dat.loc[index,'side_costs'] = side_costs
+                dat.loc[index,'MOH/Dem Fees'] = side_costs
+                dat.loc[index,'Actual Costs Excluding MOH/Dem'] = total_freight
+
                 #if bvp <=.1 and bvp >=-.1:
                 #    dat.loc[index, 'KPI 6 freight_costs'] = 0
 
@@ -477,7 +480,7 @@ def run_kpis(matrix_file, dat, reporting_yr_month,save_loc,save_name,save_yes_no
 
 
     dat.drop(['Origin Region', 'Origin'	,'Dest',	'Mode',	'Client Incoterm',
-               '2017-01 leadtimes','2017-02 leadtimes'], axis=1, inplace=True)
+               '2017-01 leadtimes','2017-02 leadtimes','2017-03 leadtimes'], axis=1, inplace=True)
 
     if matrix_var_name == 'Lead Time: ASN Creation > ATP Date (Days+2 Days)':
         dat.rename(columns = {'Lead Time: ASN Creation > ATP Date (Days+2 Days)':'Planned Lead Time'}, inplace = True)
@@ -485,7 +488,166 @@ def run_kpis(matrix_file, dat, reporting_yr_month,save_loc,save_name,save_yes_no
     if save_yes_no == 'yes':
 
         dat.to_csv(save_loc+save_name,index=False)
+        dat_submission = dat.copy()
+        dat_submission = dat_submission.rename(columns={'Planned Cost': 'Planned Costs',
+                                  'Actual Costs Excluding MOH/Dem': 'Actual Costs Excluding MOH/Dem',
+                                  'Actual Freight Leadtime': 'Actual FLT',
+                                  'Full Lead Time (not including production)': 'Planned LT',})
 
+        dat_submission_cols = ['Waiver Required?',
+                    'Grant#',
+                    'Project Code',
+                    'PE#',
+                    'PQ#',
+                    'Order#',
+                    'Shipment#',
+                    'Order Type',
+                    'Contract Type',
+                    'Client Type',
+                    'Order Short Closed',
+                    'Order Point of Contact',
+                    'PQ Buyer',
+                    'Sub Vendor Code',
+                    'Sub Vendor Name',
+                    'PQ Product Group',
+                    'Managed By',
+                    'Managed By - Project',
+                    'Managed By - Group',
+                    'DIRDRP/RDC',
+                    'Fulfill Via',
+                    'Vendor INCO Term',
+                    'Vendor INCO Location',
+                    'Client INCO Term',
+                    'Client INCO Location',
+                    'Shipment Mode',
+                    'Freight Forwarder',
+                    'Shipment Total Item Quantity',
+                    'Shipment Total Item Weight',
+                    'Shipment Total Item Volume',
+                    'Order Pick Up Country Code',
+                    'Order Pick Up Country Name',
+                    'Order Pick Up Country Latitude',
+                    'Order Pick Up Country Longitude',
+                    'Ship To Country Code',
+                    'Ship To Country Name',
+                    'Ship To Country Latitude',
+                    'Ship To Country Longitude',
+                    'PR Received Date',
+                    'PR Last Submitted Date',
+                    'PE Create Date',
+                    'PE Actionable Date',
+                    'PE Expiry Date',
+                    'PE Estimate Ready Date',
+                    'PE Sent Date',
+                    'PE Response Date',
+                    'PE Proceed To PQ Date',
+                    'PE Requested Delivery Date',
+                    'PQ Create Date',
+                    'PQ Actionable Date',
+                    'PQ First Submitted Date',
+                    'PQ First Approved Date',
+                    'PQ First Sent to Client Date',
+                    'PQ Last Sent Date',
+                    'PQ First Response Date',
+                    'PQ Last Client Response Date',
+                    'PQ Proceed To PO/SO Date',
+                    'Order Created Date',
+                    'PO Sent to Vendor Date',
+                    'PO Vendor Confirmed Date',
+                    'Vendor Promised Date',
+                    'Vendor INCO Fulfillment Date',
+                    'ASN/DN Created Date',
+                    'Shipment Last Approved Date',
+                    'Import Waiver Requested Date',
+                    'Import Waiver Received Date',
+                    'Shipment Documents Sent to F&L Date',
+                    'F&L Accepted Shipment Date',
+                    'Shipment Picked Up Date',
+                    'Shipment Shipped Date',
+                    'Shipment Arrived at Port Date',
+                    'Shipment Entered Customs Date',
+                    'Shipment Cleared Customs Date',
+                    'Current Shipment Milestone',
+                    'Shipment Delivered Date',
+                    'Current Planned Delivery Date',
+                    'PQ Item Req Delivery Date - Latest',
+                    'Delivery Recorded Date',
+                    'Delivery Recorded Year - Month',
+                    'Delivery Recorded Month',
+                    'Delivery Recorded Qtr',
+                    'Delivery Recorded Year',
+                    'Client Promised Delivery Date',
+                    'Order Last Delivery Recorded Date',
+                    'Order Fully Delivered?',
+                    'Order Last Delivery Recorded Year - Month',
+                    'Order Last Delivery Recorded Month',
+                    'Order Last Delivery Recorded Qtr',
+                    'Order Last Delivery Recorded Year',
+                    'VOTD Days Late',
+                    'VOTD Category',
+                    'COTD Days Late',
+                    'COTD Category',
+                    'Shipment Total AD Days',
+                    'Shipment Total UD Days',
+                    'Shipment Value',
+                    'PQ Value',
+                    'Order Value',
+                    'Pharma',
+                    'Emergency',
+                    'Confirmation of Receipt Date',
+                    'Complaints About Delivery',
+                    'FB Weight',
+                    'FB Allocated Freight',
+                    'FB Freight Cost Per Kilo',
+                    'FB Booked Value',
+                    'FB Breakup Value',
+                    'FB Org Charge',
+                    'FB Pickup Charge',
+                    'FB Port Carr. Fees',
+                    'FB Org Cust. Clearance',
+                    'FB Hand Doc Charge',
+                    'FB Total Trans Charge',
+                    'FB Air Ocean Trans',
+                    'FB Inland Drayage',
+                    'FB Fuel',
+                    'FB Bunker Charge',
+                    'FB Carr. Sec Fees',
+                    'FB Total Dest. Charge',
+                    'FB Excp Cust. Clearance',
+                    'FB Hand Brk Blk Fee',
+                    'FB Delivery Offload To Dest.',
+                    'FB Air Term Fee',
+                    'FB Total Demurrage Det Oth',
+                    'FB Demurrage',
+                    'FB Mod Fda',
+                    'FB Spl Warfage',
+                    'FB Strg Fees',
+                    'FB Container Deposit',
+                    'FB Cold Chain Hazmat',
+                    'FB Plug In Fee',
+                    'FB Other',
+                    'FB Not Found',
+                    'Planned Costs',
+                    'Actual Costs Excluding MOH/Dem',
+                    'Actual FLT',
+                    'Planned LT']
+        dat_submission = dat_submission[dat_submission_cols]
+
+        col_list_dat = list(dat_submission.columns)
+
+        #classic issues where lines where there are encoding issues.
+        # coercing them into latin-1 works fine... but bears further testing
+        for i in col_list_dat:
+            if dat_submission[i].dtypes == np.object:
+                # print i
+                dat_submission[i] = dat_submission[i].fillna('')
+                dat_submission[i] = dat_submission[i].str.decode('latin-1')
+
+        writer = pd.ExcelWriter(save_loc+'PAD_COR_GF_submssion_format_.xlsx')
+        dat_submission.to_excel(writer, 'PAD COR', index=False)
+        writer.save()
+
+        del dat_submission
     print("--- %s seconds ---" % (time.time() - start_time))
 
     return dat
@@ -736,7 +898,7 @@ def generate_total_kpi(dat, months= ['2017-01','2017-02','2017-03'],matrix_file=
     kpi_4_list = [x for x in kpi_4_list if str(x) != 'nan']
     kpi_4_list = [x for x in kpi_4_list if str(x) != 'flt less than 0, check vendor inco and D1 dates']
     #
-    print kpi_4_list
+    #print kpi_4_list
     kpi_4_list = [float(i) for i in kpi_4_list]
     kpi_4_eval = np.median(kpi_4_list)* 100
 

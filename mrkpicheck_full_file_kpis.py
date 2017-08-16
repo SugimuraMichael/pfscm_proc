@@ -654,7 +654,7 @@ def run_kpis(matrix_file, dat, reporting_yr_month,save_loc,save_name,save_yes_no
 
 
 
-def generate_individual_kpi_numbers(dat, months= ['2017-05'],matrix_file = ''):
+def generate_individual_kpi_numbers(dat, months= ['2017-05'],matrix_file = '',surpress = "yes"):
     #KPI 1
     start_time = time.time()
 
@@ -813,30 +813,30 @@ def generate_individual_kpi_numbers(dat, months= ['2017-05'],matrix_file = ''):
         kpi_3_list = list(filter(str, kpi_3_list)) # fastest
         po_turnaround =  np.median(kpi_3_list)
         po_to_list = dat2.shape[0]
+        if surpress.lower() != "yes":
+            print('############################## KPI OUTPUTS ##############################')
+            print 'date: ' + str(time.strftime("%b %d, %Y"))
+            print reporting_period
+            print matrix_file
+            print
+            print("OTIF: %.4f%%" % (ontime) + " or " + str(otif_dict['14 Days or Less']) + ' out of ' + str(otif_total) + " target >= 85%")
+            print
+            print("PE Turnaround: " + str(pe_turnaround) + " target <= 3 days" + " N=" + str(pe_to_list))
+            print
+            print("PO Turnaround: " + str(po_turnaround) + " target <= 7 days" + " N=" + str(po_to_list))
+            print
+            print(
+            "FLT: %.4f%%" % (kpi_4_eval) + " total of " + str(len(kpi_4_list)) + " target -12% <= x <= 12% ")
 
-        print('############################## KPI OUTPUTS ##############################')
-        print 'date: ' + str(time.strftime("%b %d, %Y"))
-        print reporting_period
-        print matrix_file
-        print
-        print("OTIF: %.4f%%" % (ontime) + " or " + str(otif_dict['14 Days or Less']) + ' out of ' + str(otif_total) + " target >= 85%")
-        print
-        print("PE Turnaround: " + str(pe_turnaround) + " target <= 3 days" + " N=" + str(pe_to_list))
-        print
-        print("PO Turnaround: " + str(po_turnaround) + " target <= 7 days" + " N=" + str(po_to_list))
-        print
-        print(
-        "FLT: %.4f%%" % (kpi_4_eval) + " total of " + str(len(kpi_4_list)) + " target -12% <= x <= 12% ")
+            print
+            print("Within Lead Times: %.2f%%" % (kpi5_within) + ' or ' + str(kpi_5_dict['within']) + ' out of ' + str(
+                kpi_5_totals) + " target >=75%")
+            print
+            print('Freight Costs: ' + str(kpi_6_median) + " target median +- 10% N= " + str(len(kpi_6_list)))
+            print
+            print("Within Freight Costs: %.2f%%" % (kpi_7_eval_pass_per) + ' or ' + str(kpi_7_eval_pass) + ' out of ' + str(kpi_6_list_len) + " target >=75%")
 
-        print
-        print("Within Lead Times: %.2f%%" % (kpi5_within) + ' or ' + str(kpi_5_dict['within']) + ' out of ' + str(
-            kpi_5_totals) + " target >=75%")
-        print
-        print('Freight Costs: ' + str(kpi_6_median) + " target median +- 10% N= " + str(len(kpi_6_list)))
-        print
-        print("Within Freight Costs: %.2f%%" % (kpi_7_eval_pass_per) + ' or ' + str(kpi_7_eval_pass) + ' out of ' + str(kpi_6_list_len) + " target >=75%")
-
-        print('############################## KPI OUTPUTS ##############################')
+            print('############################## KPI OUTPUTS ##############################')
 
         otif_final.append(str(ontime)+'%')
         ontime_number.append(otif_dict['14 Days or Less'])

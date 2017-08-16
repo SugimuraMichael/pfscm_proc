@@ -49,7 +49,7 @@ old_dat = pd.read_csv('C:/Users/585000/Desktop/PCFSM/2017 KPIs/'+older_PAD_COR+'
 new_dat = pd.read_csv('C:/Users/585000/Desktop/PCFSM/2017 KPIs/'+newer_PAD_COR+'.csv')
 
 version='8_15_v2' #this sets the folder that you will save to.
-                  # This scripts gives permission to write new folders if they do not exist
+                  # This script gives permission to write new folders if they do not exist
 month = 'July' #Sets a parent folder. I have been saving all the runs I do for a particular month together
                 # Example path PFSCM-> Monthly Reporting -> month='July'->version = XXXXX
 
@@ -84,6 +84,11 @@ outlier_file = 'Outliers_'+matrix_file+'_'+'.xlsx'
 if not os.path.exists(save_loc):
     os.makedirs(save_loc)
 
+#generate a dataset that has columns for KPI calculations added to it
+#this section will also generate a dataset outputed in the format for submission to TGF
+# format is essentially a standard dataset with 4 extra columns.
+# function full_file.run_kpis has this embededed in it. Could pull it out, but I figured it would be alright to leave
+# at least for the time being.
 if os.path.isfile(save_loc+save_name) == False:
     #all this does is replace scms with po...
     dat2 = replace_SCMS(dat)
@@ -91,7 +96,6 @@ if os.path.isfile(save_loc+save_name) == False:
 
 #if file has already been run, the longest thing for basic reporting is creating the marked dataset
 # approximately 1min on current computer.
-
 if os.path.isfile(save_loc+save_name) == True:
 
     print 'hello world'
@@ -101,27 +105,42 @@ if os.path.isfile(save_loc+save_name) == True:
 old_dat = replace_SCMS(old_dat)
 new_dat = replace_SCMS(new_dat)
 
-
 #timer
 start_timez = time.time()
 
 print '############################## KPIS ##############################'
 print
 
-#generate_individuals can handle any number of periods,
-#cats = full_file.generate_individual_kpi_numbers(dat2, months= ['2017-01','2017-02','2017-03','2017-04','2017-05'],matrix_file = matrix_file)
-#runtime .092 seconds for 1 month
-#currently just setting it to do one month set by reporting month
+print "Time to calculate KPIs for a specific reporting month"
+                                             # USAGE NOTES READ
 
+# First function will calculate and display the KPI totals for a given period, based off of the reporting.
+# this function actually just aggregates the kpi values for a given period "months" option. By feeding it just
+# the reporting_period variable placed in a list, it means it will aggregate the values for a single month.
+# later a list of months is fed in to give a larger aggregated kpi output
+
+full_file.generate_total_kpi(dat2, months= [reporting_period],matrix_file=matrix_file)
 
 print
-print "Generating KPIs for one specific month (Months = reporting_period)"
-kpi_dat = full_file.generate_individual_kpi_numbers(dat2, months= [reporting_period],matrix_file = matrix_file)
+print "Generating dataset of aggregated KPI Months, default is to have output surpressed, but save file"
+print
+                                                # USAGE NOTES READ
+
+#setting the defaul period to be same as above, but whereas the following function aggregates the results, this
+# function just aims to create a dataset which can be used to look at how KPIs trend across months.
+# FUTURE addition would be a quarter aggregator...? I guess...
+
+#NOTES:
+# compare_reporting_order_month+[reporting_period]
+# yields ['2017-01', '2017-02', '2017-03', '2017-04', '2017-05', '2017-06', '2017-07']
+#surpress option supresses KPI output, makes file output cleaner
+
+kpi_dat = full_file.generate_individual_kpi_numbers(dat2, months= compare_reporting_order_month+[reporting_period]
+                                                    ,matrix_file = matrix_file,surpress="yes")
 
 #for a full period, people ask frequently
 kpi_dat.to_csv(save_loc+matrix_file+'_kpi_outputs_aggregated.csv',index=False)
 
-#full_file.generate_total_kpi(dat2, months= [reporting_period],matrix_file=matrix_file)
 
 
 print
@@ -131,7 +150,10 @@ print "Generating KPIs for longer period of time Change months as needed"
 
 #using the list of months in compare_reporting_order_month as a base which should be everything but the most
 # recent reporting month... we can just add the reporting period to it and generate a dataset of all the months.
-# in this case
+# in this case. It means when people ask, "what was KPI performance for Q2 of 2017" you can just enter the appropriate
+# months and have it calculate a total for you
+
+#NOTES:
 # compare_reporting_order_month+[reporting_period]
 # yields ['2017-01', '2017-02', '2017-03', '2017-04', '2017-05', '2017-06', '2017-07']
 
@@ -150,7 +172,7 @@ print 'See save folder to see aggregated totals for given period'
 # function just aims to create a dataset which can be used to look at how KPIs trend across months.
 # FUTURE addition would be a quarter aggregator...? I guess...
 
-just_kpis = full_file.generate_just_kpi_period_dataset(dat2, months= compare_reporting_order_month+[reporting_period])
+just_kpis = full_file.generate_just_kpi_period_dataset(dat2, months= [reporting_period])
 just_kpis.to_csv(save_loc+matrix_file+'_just_kpi_rows.csv',index=False) #save dataset
 
 print
@@ -185,7 +207,7 @@ compare_padcors(old_dat,new_dat,save_loc,compare_save_name,compare_reporting_ord
 
 print '############################## Supplier Fields for LSU ##############################'
 
-                                            # USAGE NOTES READ
+                                                # USAGE NOTES READ
 
 #This function looks for blanks in vendor related dates, PO turnaround, and PE turnaround and tries to flag rows
 # which could potentially be missing data. Signal to noise ratio on this is VERY HIGH and bears improvement overtime

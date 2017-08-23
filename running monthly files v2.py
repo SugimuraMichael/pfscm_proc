@@ -29,31 +29,31 @@ MC_directory = 'C:/Users/585000/Desktop/PCFSM/2017 KPIs/'
 
 ################################## SECTION THAT REQUIRES ADJUSTING ##################################
 ### USE PAD COR not pad cor ppm
-matrix_file = 'PAD COR 8_15_17'
+matrix_file = 'PAD COR 8_21_17'
 
 #Reporting period is most important to adjust... by default it is a single month. but function it feeds into
 # can take multiple months at a time as a list of strings
-reporting_period = '2017-07' #used in most basic kpi reporting where only 1 month of data is generated
+reporting_period = '2017-08' #used in most basic kpi reporting where only 1 month of data is generated
 
 
 #by default this will generally be equal to matrix_file... but can also use the compare function to look for
 # differences between two PAD CORs not just for reporting purposes... can help track when changes occured within
 # the system and has been periodically useful
-newer_PAD_COR = matrix_file
-older_PAD_COR = 'PAD COR 7_14_17' #set to be the previous reporting period dataset. in this case the submission for
+newer_dat = matrix_file
+older_dat = 'PAD COR 8_14_17' #set to be the previous reporting period dataset. in this case the submission for
                                     # june pulled on July 14 2017
 
 dat = pd.read_csv(MC_directory + matrix_file+'.csv') #load basic dataset, PAD COR as a csv
 
-old_dat = pd.read_csv('C:/Users/585000/Desktop/PCFSM/2017 KPIs/'+older_PAD_COR+'.csv')
-new_dat = pd.read_csv('C:/Users/585000/Desktop/PCFSM/2017 KPIs/'+newer_PAD_COR+'.csv')
+old_PAD_COR = pd.read_csv('C:/Users/585000/Desktop/PCFSM/2017 KPIs/'+older_dat+'.csv')
+new_PAD_COR = pd.read_csv('C:/Users/585000/Desktop/PCFSM/2017 KPIs/'+newer_dat+'.csv')
 
-version='8_15_v2' #this sets the folder that you will save to.
+version='8_21_v1' #this sets the folder that you will save to.
                   # This script gives permission to write new folders if they do not exist
-month = 'July' #Sets a parent folder. I have been saving all the runs I do for a particular month together
+month = 'Aug' #Sets a parent folder. I have been saving all the runs I do for a particular month together
                 # Example path PFSCM-> Monthly Reporting -> month='July'->version = XXXXX
 
-comparison_date = '08/10/2017' #used in checking for blanks
+comparison_date = '09/10/2017' #used in checking for blanks
 
 #Used to determine whether or not code should be saved
 save_yes_no = 'yes'
@@ -65,7 +65,7 @@ supply_period = ['2017']
 #comparing pad cors.
 # THIS needs to be updated monthly, so include previous months. At a certain point we can just make a function for this
 # Also using this to generate aggregated total
-compare_reporting_order_month = ['2017-01','2017-02','2017-03','2017-04','2017-05','2017-06']
+compare_reporting_order_month = ['2017-01','2017-02','2017-03','2017-04','2017-05','2017-06','2017-07']
 #PE PO
 save_loc = 'C:/Users/585000/Desktop/PCFSM/monthly reporting files/'+month+'/'+version+'/'
 
@@ -102,8 +102,8 @@ if os.path.isfile(save_loc+save_name) == True:
     dat2 = pd.read_csv(save_loc+save_name)
 
 #calling functions to replace SCMS with PO for comparison datasets
-old_dat = replace_SCMS(old_dat)
-new_dat = replace_SCMS(new_dat)
+old_PAD_COR = replace_SCMS(old_PAD_COR)
+new_PAD_COR = replace_SCMS(new_PAD_COR)
 
 #timer
 start_timez = time.time()
@@ -192,7 +192,7 @@ print 'generate outlier files, this is based off of a dataframe of just KPI rows
 
 do_the_thing(just_kpis,save_loc=save_loc,save_name=outlier_file) #terribly named, but it generates outliers for kpis
 
-
+print
 print '############################## Old vs New ##############################'
 
                                                 # USAGE NOTES READ
@@ -203,8 +203,8 @@ print '############################## Old vs New ##############################'
 #   NOTE: Otif is fairly stable and it is not common to see changes in past data
 
 #
-compare_padcors(old_dat,new_dat,save_loc,compare_save_name,compare_reporting_order_month)
-
+compare_padcors(old_PAD_COR,new_PAD_COR,save_loc,compare_save_name,compare_reporting_order_month)
+print
 print '############################## Supplier Fields for LSU ##############################'
 
                                                 # USAGE NOTES READ

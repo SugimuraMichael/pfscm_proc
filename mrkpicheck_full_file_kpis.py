@@ -493,161 +493,162 @@ def run_kpis(matrix_file, dat, reporting_yr_month,save_loc,save_name,save_yes_no
                                   'Actual Costs Excluding MOH/Dem': 'Actual Costs Excluding MOH/Dem',
                                   'Actual Freight Leadtime': 'Actual FLT',
                                   'Full Lead Time (not including production)': 'Planned LT',})
+        if TGF == 'Yes':
 
-        dat_submission_cols = ['Waiver Required?',
-                    'Grant#',
-                    'Project Code',
-                    'PE#',
-                    'PQ#',
-                    'Order#',
-                    'Shipment#',
-                    'Order Type',
-                    'Contract Type',
-                    'Client Type',
-                    'Order Short Closed',
-                    'Order Point of Contact',
-                    'PQ Buyer',
-                    'Sub Vendor Code',
-                    'Sub Vendor Name',
-                    'PQ Product Group',
-                    'Managed By',
-                    'Managed By - Project',
-                    'Managed By - Group',
-                    'DIRDRP/RDC',
-                    'Fulfill Via',
-                    'Vendor INCO Term',
-                    'Vendor INCO Location',
-                    'Client INCO Term',
-                    'Client INCO Location',
-                    'Shipment Mode',
-                    'Freight Forwarder',
-                    'Shipment Total Item Quantity',
-                    'Shipment Total Item Weight',
-                    'Shipment Total Item Volume',
-                    'Order Pick Up Country Code',
-                    'Order Pick Up Country Name',
-                    'Order Pick Up Country Latitude',
-                    'Order Pick Up Country Longitude',
-                    'Ship To Country Code',
-                    'Ship To Country Name',
-                    'Ship To Country Latitude',
-                    'Ship To Country Longitude',
-                    'PR Received Date',
-                    'PR Last Submitted Date',
-                    'PE Create Date',
-                    'PE Actionable Date',
-                    'PE Expiry Date',
-                    'PE Estimate Ready Date',
-                    'PE Sent Date',
-                    'PE Response Date',
-                    'PE Proceed To PQ Date',
-                    'PE Requested Delivery Date',
-                    'PQ Create Date',
-                    'PQ Actionable Date',
-                    'PQ First Submitted Date',
-                    'PQ First Approved Date',
-                    'PQ First Sent to Client Date',
-                    'PQ Last Sent Date',
-                    'PQ First Response Date',
-                    'PQ Last Client Response Date',
-                    'PQ Proceed To PO/SO Date',
-                    'Order Created Date',
-                    'PO Sent to Vendor Date',
-                    'PO Vendor Confirmed Date',
-                    'Vendor Promised Date',
-                    'Vendor INCO Fulfillment Date',
-                    'ASN/DN Created Date',
-                    'Shipment Last Approved Date',
-                    'Import Waiver Requested Date',
-                    'Import Waiver Received Date',
-                    'Shipment Documents Sent to F&L Date',
-                    'F&L Accepted Shipment Date',
-                    'Shipment Picked Up Date',
-                    'Shipment Shipped Date',
-                    'Shipment Arrived at Port Date',
-                    'Shipment Entered Customs Date',
-                    'Shipment Cleared Customs Date',
-                    'Current Shipment Milestone',
-                    'Shipment Delivered Date',
-                    'Current Planned Delivery Date',
-                    'PQ Item Req Delivery Date - Latest',
-                    'Delivery Recorded Date',
-                    'Delivery Recorded Year - Month',
-                    'Delivery Recorded Month',
-                    'Delivery Recorded Qtr',
-                    'Delivery Recorded Year',
-                    'Client Promised Delivery Date',
-                    'Order Last Delivery Recorded Date',
-                    'Order Fully Delivered?',
-                    'Order Last Delivery Recorded Year - Month',
-                    'Order Last Delivery Recorded Month',
-                    'Order Last Delivery Recorded Qtr',
-                    'Order Last Delivery Recorded Year',
-                    'VOTD Days Late',
-                    'VOTD Category',
-                    'COTD Days Late',
-                    'COTD Category',
-                    'Shipment Total AD Days',
-                    'Shipment Total UD Days',
-                    'Shipment Value',
-                    'PQ Value',
-                    'Order Value',
-                    'Pharma',
-                    'Emergency',
-                    'Confirmation of Receipt Date',
-                    'Complaints About Delivery',
-                    'FB Weight',
-                    'FB Allocated Freight',
-                    'FB Freight Cost Per Kilo',
-                    'FB Booked Value',
-                    'FB Breakup Value',
-                    'FB Org Charge',
-                    'FB Pickup Charge',
-                    'FB Port Carr. Fees',
-                    'FB Org Cust. Clearance',
-                    'FB Hand Doc Charge',
-                    'FB Total Trans Charge',
-                    'FB Air Ocean Trans',
-                    'FB Inland Drayage',
-                    'FB Fuel',
-                    'FB Bunker Charge',
-                    'FB Carr. Sec Fees',
-                    'FB Total Dest. Charge',
-                    'FB Excp Cust. Clearance',
-                    'FB Hand Brk Blk Fee',
-                    'FB Delivery Offload To Dest.',
-                    'FB Air Term Fee',
-                    'FB Total Demurrage Det Oth',
-                    'FB Demurrage',
-                    'FB Mod Fda',
-                    'FB Spl Warfage',
-                    'FB Strg Fees',
-                    'FB Container Deposit',
-                    'FB Cold Chain Hazmat',
-                    'FB Plug In Fee',
-                    'FB Other',
-                    'FB Not Found',
-                    'Planned Costs',
-                    'Actual Costs Excluding MOH/Dem',
-                    'Actual FLT',
-                    'Planned LT']
-        dat_submission = dat_submission[dat_submission_cols]
+            dat_submission_cols = ['Waiver Required?',
+                        'Grant#',
+                        'Project Code',
+                        'PE#',
+                        'PQ#',
+                        'Order#',
+                        'Shipment#',
+                        'Order Type',
+                        'Contract Type',
+                        'Client Type',
+                        'Order Short Closed',
+                        'Order Point of Contact',
+                        'PQ Buyer',
+                        'Sub Vendor Code',
+                        'Sub Vendor Name',
+                        'PQ Product Group',
+                        'Managed By',
+                        'Managed By - Project',
+                        'Managed By - Group',
+                        'DIRDRP/RDC',
+                        'Fulfill Via',
+                        'Vendor INCO Term',
+                        'Vendor INCO Location',
+                        'Client INCO Term',
+                        'Client INCO Location',
+                        'Shipment Mode',
+                        'Freight Forwarder',
+                        'Shipment Total Item Quantity',
+                        'Shipment Total Item Weight',
+                        'Shipment Total Item Volume',
+                        'Order Pick Up Country Code',
+                        'Order Pick Up Country Name',
+                        'Order Pick Up Country Latitude',
+                        'Order Pick Up Country Longitude',
+                        'Ship To Country Code',
+                        'Ship To Country Name',
+                        'Ship To Country Latitude',
+                        'Ship To Country Longitude',
+                        'PR Received Date',
+                        'PR Last Submitted Date',
+                        'PE Create Date',
+                        'PE Actionable Date',
+                        'PE Expiry Date',
+                        'PE Estimate Ready Date',
+                        'PE Sent Date',
+                        'PE Response Date',
+                        'PE Proceed To PQ Date',
+                        'PE Requested Delivery Date',
+                        'PQ Create Date',
+                        'PQ Actionable Date',
+                        'PQ First Submitted Date',
+                        'PQ First Approved Date',
+                        'PQ First Sent to Client Date',
+                        'PQ Last Sent Date',
+                        'PQ First Response Date',
+                        'PQ Last Client Response Date',
+                        'PQ Proceed To PO/SO Date',
+                        'Order Created Date',
+                        'PO Sent to Vendor Date',
+                        'PO Vendor Confirmed Date',
+                        'Vendor Promised Date',
+                        'Vendor INCO Fulfillment Date',
+                        'ASN/DN Created Date',
+                        'Shipment Last Approved Date',
+                        'Import Waiver Requested Date',
+                        'Import Waiver Received Date',
+                        'Shipment Documents Sent to F&L Date',
+                        'F&L Accepted Shipment Date',
+                        'Shipment Picked Up Date',
+                        'Shipment Shipped Date',
+                        'Shipment Arrived at Port Date',
+                        'Shipment Entered Customs Date',
+                        'Shipment Cleared Customs Date',
+                        'Current Shipment Milestone',
+                        'Shipment Delivered Date',
+                        'Current Planned Delivery Date',
+                        'PQ Item Req Delivery Date - Latest',
+                        'Delivery Recorded Date',
+                        'Delivery Recorded Year - Month',
+                        'Delivery Recorded Month',
+                        'Delivery Recorded Qtr',
+                        'Delivery Recorded Year',
+                        'Client Promised Delivery Date',
+                        'Order Last Delivery Recorded Date',
+                        'Order Fully Delivered?',
+                        'Order Last Delivery Recorded Year - Month',
+                        'Order Last Delivery Recorded Month',
+                        'Order Last Delivery Recorded Qtr',
+                        'Order Last Delivery Recorded Year',
+                        'VOTD Days Late',
+                        'VOTD Category',
+                        'COTD Days Late',
+                        'COTD Category',
+                        'Shipment Total AD Days',
+                        'Shipment Total UD Days',
+                        'Shipment Value',
+                        'PQ Value',
+                        'Order Value',
+                        'Pharma',
+                        'Emergency',
+                        'Confirmation of Receipt Date',
+                        'Complaints About Delivery',
+                        'FB Weight',
+                        'FB Allocated Freight',
+                        'FB Freight Cost Per Kilo',
+                        'FB Booked Value',
+                        'FB Breakup Value',
+                        'FB Org Charge',
+                        'FB Pickup Charge',
+                        'FB Port Carr. Fees',
+                        'FB Org Cust. Clearance',
+                        'FB Hand Doc Charge',
+                        'FB Total Trans Charge',
+                        'FB Air Ocean Trans',
+                        'FB Inland Drayage',
+                        'FB Fuel',
+                        'FB Bunker Charge',
+                        'FB Carr. Sec Fees',
+                        'FB Total Dest. Charge',
+                        'FB Excp Cust. Clearance',
+                        'FB Hand Brk Blk Fee',
+                        'FB Delivery Offload To Dest.',
+                        'FB Air Term Fee',
+                        'FB Total Demurrage Det Oth',
+                        'FB Demurrage',
+                        'FB Mod Fda',
+                        'FB Spl Warfage',
+                        'FB Strg Fees',
+                        'FB Container Deposit',
+                        'FB Cold Chain Hazmat',
+                        'FB Plug In Fee',
+                        'FB Other',
+                        'FB Not Found',
+                        'Planned Costs',
+                        'Actual Costs Excluding MOH/Dem',
+                        'Actual FLT',
+                        'Planned LT']
+            dat_submission = dat_submission[dat_submission_cols]
 
-        col_list_dat = list(dat_submission.columns)
+            col_list_dat = list(dat_submission.columns)
 
-        #classic issues where lines where there are encoding issues.
-        # coercing them into latin-1 works fine... but bears further testing
-        for i in col_list_dat:
-            if dat_submission[i].dtypes == np.object:
-                # print i
-                dat_submission[i] = dat_submission[i].fillna('')
-                dat_submission[i] = dat_submission[i].str.decode('latin-1')
+            #classic issues where lines where there are encoding issues.
+            # coercing them into latin-1 works fine... but bears further testing
+            for i in col_list_dat:
+                if dat_submission[i].dtypes == np.object:
+                    # print i
+                    dat_submission[i] = dat_submission[i].fillna('')
+                    dat_submission[i] = dat_submission[i].str.decode('latin-1')
 
-        writer = pd.ExcelWriter(save_loc+'PAD_COR_GF_submssion_format_.xlsx')
-        dat_submission.to_excel(writer, 'PAD COR', index=False)
-        writer.save()
+            writer = pd.ExcelWriter(save_loc+'PAD_COR_GF_submssion_format_.xlsx')
+            dat_submission.to_excel(writer, 'PAD COR', index=False)
+            writer.save()
 
-        del dat_submission
+            del dat_submission
     print("--- %s seconds ---" % (time.time() - start_time))
 
     return dat
@@ -691,7 +692,12 @@ def generate_individual_kpi_numbers(dat, months= ['2017-05'],matrix_file = '',su
         if '14 Days or Less' not in otif_dict:
             otif_dict['14 Days or Less'] = 0
 
-        ontime = (otif_dict['14 Days or Less'] / otif_total ) * 100
+        if otif_total == 0:
+            ontime = 0
+        if otif_total != 0:
+
+            ontime = (otif_dict['14 Days or Less'] / otif_total ) * 100
+
 
         #KPI 4
         kpi_4_list = list(dat2['flt_vs_plt'])
@@ -708,8 +714,10 @@ def generate_individual_kpi_numbers(dat, months= ['2017-05'],matrix_file = '',su
         if 'within' not in kpi_5_dict:
             kpi_5_dict['within'] = 0
 
-        kpi5_within = (kpi_5_dict['within'] / kpi_5_totals) * 100
-
+        if kpi_5_totals != 0:
+            kpi5_within = (kpi_5_dict['within'] / kpi_5_totals) * 100
+        if kpi_5_totals == 0:
+            kpi5_within = 0
         def get_kpi_6(year_month):
 
             month = year_month[-2:]
@@ -943,6 +951,10 @@ def generate_total_kpi(dat, months= ['2017-01','2017-02','2017-03'],matrix_file=
     dat2 = dat2[dat2['Order Last Delivery Recorded Year - Month'].str.contains(pattern)]
     #KPI 6
     kpi_6_list = []
+
+    # KPI 6
+    if 'book_actual_vs_planned' not in list(dat2.columns):
+        dat2['book_actual_vs_planned'] = 'nan'
 
     kpi_6_list = list(dat2['book_actual_vs_planned'])
     kpi_6_list = [x for x in kpi_6_list if str(x) != 'nan']
